@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trig Identities Flashcards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .perspective-1000 { perspective: 1000px; }
+    .preserve-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; }
+    
+    /* Disable tap highlight on mobile for clean flipping */
+    * { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+  
+  <div id="app">
+    
+    <!-- ================= STUDY MODE ================= -->
+    <div id="study-mode" class="min-h-screen flex-col items-center py-10 px-4">
+      <div class="max-w-2xl w-full text-center space-y-6 mx-auto">
+        
+        <!-- Header -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-center space-x-3 text-indigo-600">
+            <i data-lucide="book-open" class="w-8 h-8"></i>
+            <h1 class="text-3xl font-bold tracking-tight">Trig Identities</h1>
+          </div>
+          <p class="text-slate-500">Master your trigonometric reductions and conversions.</p>
+          <button onclick="startNameEntry()" class="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-full font-semibold transition-colors shadow-md shadow-indigo-200">
+            <i data-lucide="play" class="w-[18px] h-[18px] fill-current"></i>
+            <span>Enter Quiz Mode</span>
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap justify-center gap-2 pt-4" id="filters-container">
+          <!-- Filter buttons rendered by JS -->
+        </div>
+
+        <!-- Flashcard Container -->
+        <div class="flex justify-center my-10">
+          <div class="relative w-full max-w-md h-64 cursor-pointer perspective-1000" onclick="toggleFlip()">
+            <div id="card-inner" class="w-full h-full duration-500 rounded-2xl shadow-xl relative preserve-3d shadow-slate-300/50 transition-transform">
+              
+              <!-- Front Face -->
+              <div class="absolute w-full h-full bg-white rounded-2xl border-2 border-slate-100 flex flex-col items-center justify-center p-8 text-center backface-hidden">
+                <span class="text-sm text-slate-400 font-medium uppercase tracking-wider mb-4">Simplify</span>
+                <div id="card-front-text" class="text-4xl font-serif text-slate-800 tracking-wide"></div>
+                <span class="absolute bottom-4 text-xs text-slate-300">Tap or spacebar to flip</span>
+              </div>
+
+              <!-- Back Face -->
+              <div class="absolute w-full h-full bg-indigo-50 rounded-2xl border-2 border-indigo-100 flex flex-col items-center justify-center p-8 text-center backface-hidden" style="transform: rotateX(180deg);">
+                <span class="text-sm text-indigo-400 font-medium uppercase tracking-wider mb-4">Equals</span>
+                <div id="card-back-text" class="text-5xl font-serif text-indigo-700 tracking-wide font-medium"></div>
+                <span class="absolute bottom-4 text-xs text-indigo-300">Tap or spacebar to flip back</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex items-center justify-center space-x-6">
+          <button onclick="handlePrev()" class="p-3 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Previous card">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+          </button>
+          
+          <div id="index-display" class="text-sm font-medium text-slate-500 w-24 text-center"></div>
+
+          <button onclick="handleNext()" class="p-3 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-indigo-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Next card">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+        <!-- Guide / Hint -->
+        <div class="pt-8">
+          <div class="inline-block bg-slate-100 rounded-lg p-4 text-sm text-slate-600 text-left">
+            <h3 class="font-semibold text-slate-800 mb-2 flex items-center">
+              <i data-lucide="rotate-ccw" class="w-4 h-4 mr-2"></i> Quick Memory Rules:
+            </h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><strong>ASTC Rule:</strong> <span class="text-blue-600">A</span>ll (Q1), <span class="text-blue-600">S</span>ine (Q2), <span class="text-blue-600">T</span>angent (Q3), <span class="text-blue-600">C</span>osine (Q4).</li>
+              <li><strong>90° & 270° (y-axis):</strong> Functions <em>change</em> to their co-functions (sin ↔ cos, tan ↔ 1/tan).</li>
+              <li><strong>180° & 360° (x-axis):</strong> Functions <em>stay the same</em> (sin → sin, cos → cos).</li>
+              <li><strong>Negative angles (-θ):</strong> Equivalent to Quadrant 4 (Cosine is positive, others negative).</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= NAME ENTRY MODE ================= -->
+    <div id="name-entry-mode" class="min-h-screen hidden flex-col items-center justify-center p-4">
+      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-6">
+        <div class="flex justify-center text-indigo-500 mb-4">
+          <i data-lucide="user" class="w-12 h-12"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800">Enter Your Name</h2>
+        <p class="text-slate-500">Let's see how well you know your Trig Identities!</p>
+        <form id="name-form" class="space-y-4" onsubmit="startQuiz(event)">
+          <input
+            type="text"
+            id="name-input"
+            placeholder="Your Name..."
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-center text-lg"
+            required
+          />
+          <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 transition-colors">
+            Start Quiz
+          </button>
+          <button type="button" onclick="cancelNameEntry()" class="w-full text-slate-500 py-2 hover:text-slate-700">
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= QUIZ MODE ================= -->
+    <div id="quiz-mode" class="min-h-screen hidden flex-col items-center py-10 px-4">
+      <div class="max-w-2xl w-full space-y-6 mx-auto">
+        <!-- Quiz Header -->
+        <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+          <div class="flex items-center space-x-3">
+            <div class="bg-indigo-100 p-2 rounded-full text-indigo-600 flex items-center justify-center">
+              <i data-lucide="user" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Player</p>
+              <p id="quiz-player-name" class="font-semibold text-slate-800"></p>
+            </div>
+          </div>
+          
+          <button onclick="exitQuiz()" class="text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">
+            Exit Quiz
+          </button>
+
+          <div class="flex items-center space-x-3 text-right">
+            <div>
+              <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Score</p>
+              <p id="quiz-score" class="font-bold text-indigo-600 text-lg"></p>
+            </div>
+            <div class="bg-amber-100 p-2 rounded-full text-amber-500 flex items-center justify-center">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Card -->
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 text-center mt-8">
+          <span id="quiz-question-number" class="text-sm text-slate-400 font-medium uppercase tracking-wider mb-2 block"></span>
+          <div id="quiz-question-text" class="text-4xl font-serif text-slate-800 tracking-wide my-8"></div>
+
+          <div class="max-w-md mx-auto space-y-6">
+            <div id="quiz-options" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <!-- Quiz options generated by JS -->
+            </div>
+
+            <div id="quiz-feedback-container" class="min-h-[2rem]">
+              <!-- Feedback generated by JS -->
+            </div>
+
+            <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="w-full font-bold py-3 px-4 rounded-xl transition-colors bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hidden">
+              Next Question
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initialize icons
+    lucide.createIcons();
+
+    // Data
+    const allCards = [
+      { id: 1, front: 'sin(90° - θ)', back: 'cos(θ)', group: '90°' },
+      { id: 2, front: 'cos(90° - θ)', back: 'sin(θ)', group: '90°' },
+      { id: 3, front: 'tan(90° - θ)', back: '1/tan(θ)', group: '90°' },
+      { id: 4, front: 'sin(90° + θ)', back: 'cos(θ)', group: '90°' },
+      { id: 5, front: 'cos(90° + θ)', back: '-sin(θ)', group: '90°' },
+      { id: 6, front: 'tan(90° + θ)', back: '-1/tan(θ)', group: '90°' },
+      
+      { id: 7, front: 'sin(180° - θ)', back: 'sin(θ)', group: '180°' },
+      { id: 8, front: 'cos(180° - θ)', back: '-cos(θ)', group: '180°' },
+      { id: 9, front: 'tan(180° - θ)', back: '-tan(θ)', group: '180°' },
+      { id: 10, front: 'sin(180° + θ)', back: '-sin(θ)', group: '180°' },
+      { id: 11, front: 'cos(180° + θ)', back: '-cos(θ)', group: '180°' },
+      { id: 12, front: 'tan(180° + θ)', back: 'tan(θ)', group: '180°' },
+
+      { id: 13, front: 'sin(270° - θ)', back: '-cos(θ)', group: '270°' },
+      { id: 14, front: 'cos(270° - θ)', back: '-sin(θ)', group: '270°' },
+      { id: 15, front: 'tan(270° - θ)', back: '1/tan(θ)', group: '270°' },
+      { id: 16, front: 'sin(270° + θ)', back: '-cos(θ)', group: '270°' },
+      { id: 17, front: 'cos(270° + θ)', back: 'sin(θ)', group: '270°' },
+      { id: 18, front: 'tan(270° + θ)', back: '-1/tan(θ)', group: '270°' },
+
+      { id: 19, front: 'sin(360° - θ)', back: '-sin(θ)', group: '360°' },
+      { id: 20, front: 'cos(360° - θ)', back: 'cos(θ)', group: '360°' },
+      { id: 21, front: 'tan(360° - θ)', back: '-tan(θ)', group: '360°' },
+      { id: 22, front: 'sin(360° + θ)', back: 'sin(θ)', group: '360°' },
+      { id: 23, front: 'cos(360° + θ)', back: 'cos(θ)', group: '360°' },
+      { id: 24, front: 'tan(360° + θ)', back: 'tan(θ)', group: '360°' },
+
+      { id: 25, front: 'sin(-θ)', back: '-sin(θ)', group: '-θ' },
+      { id: 26, front: 'cos(-θ)', back: 'cos(θ)', group: '-θ' },
+      { id: 27, front: 'tan(-θ)', back: '-tan(θ)', group: '-θ' },
+    ];
+
+    const groups = ['All', '90°', '180°', '270°', '360°', '-θ'];
+    const quizOptions = ['sin(θ)', '-sin(θ)', 'cos(θ)', '-cos(θ)', 'tan(θ)', '-tan(θ)', '1/tan(θ)', '-1/tan(θ)'];
+
+    // State
+    let state = {
+      cards: [...allCards],
+      currentIndex: 0,
+      isFlipped: false,
+      activeFilter: 'All',
+      mode: 'study', // 'study', 'name-entry', 'quiz'
+      userName: '',
+      score: 0,
+      attempted: 0,
+      userAnswer: '',
+      quizFeedback: null,
+      autoNextTimeout: null
+    };
+
+    // DOM Elements
+    const views = {
+      study: document.getElementById('study-mode'),
+      nameEntry: document.getElementById('name-entry-mode'),
+      quiz: document.getElementById('quiz-mode')
+    };
+
+    // --- Study Mode Logic ---
+
+    function renderFilters() {
+      const container = document.getElementById('filters-container');
+      container.innerHTML = '';
+      
+      groups.forEach(group => {
+        const btn = document.createElement('button');
+        btn.textContent = group;
+        btn.onclick = () => filterCards(group);
+        if (state.activeFilter === group) {
+          btn.className = "px-4 py-2 rounded-full text-sm font-medium transition-colors bg-indigo-600 text-white shadow-md";
+        } else {
+          btn.className = "px-4 py-2 rounded-full text-sm font-medium transition-colors bg-white text-slate-600 border border-slate-200 hover:bg-slate-100";
+        }
+        container.appendChild(btn);
+      });
+
+      const shuffleBtn = document.createElement('button');
+      shuffleBtn.onclick = shuffleCards;
+      shuffleBtn.className = "px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 flex items-center space-x-1 transition-colors";
+      shuffleBtn.title = "Shuffle Cards";
+      shuffleBtn.innerHTML = `<i data-lucide="shuffle" class="w-4 h-4"></i><span>Shuffle</span>`;
+      container.appendChild(shuffleBtn);
+      
+      lucide.createIcons();
+    }
+
+    function filterCards(group) {
+      state.activeFilter = group;
+      state.isFlipped = false;
+      state.currentIndex = 0;
+      if (group === 'All') {
+        state.cards = [...allCards];
+      } else {
+        state.cards = allCards.filter(card => card.group === group);
+      }
+      updateUI();
+    }
+
+    function shuffleCards() {
+      state.cards = [...state.cards].sort(() => Math.random() - 0.5);
+      state.currentIndex = 0;
+      state.isFlipped = false;
+      updateUI();
+    }
+
+    function handleNext() {
+      state.isFlipped = false;
+      updateUI(); // unflip first
+      setTimeout(() => {
+        state.currentIndex = (state.currentIndex + 1) % state.cards.length;
+        updateUI();
+      }, 150);
+    }
+
+    function handlePrev() {
+      state.isFlipped = false;
+      updateUI();
+      setTimeout(() => {
+        state.currentIndex = (state.currentIndex - 1 + state.cards.length) % state.cards.length;
+        updateUI();
+      }, 150);
+    }
+
+    function toggleFlip() {
+      state.isFlipped = !state.isFlipped;
+      updateUI();
+    }
+
+    // --- Quiz Mode Logic ---
+
+    function startNameEntry() {
+      state.mode = 'name-entry';
+      document.getElementById('name-input').value = '';
+      updateUI();
+      setTimeout(() => document.getElementById('name-input').focus(), 50);
+    }
+
+    function cancelNameEntry() {
+      state.mode = 'study';
+      updateUI();
+    }
+
+    function startQuiz(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('name-input').value.trim();
+      if (!nameInput) return;
+      
+      if (state.autoNextTimeout) {
+        clearTimeout(state.autoNextTimeout);
+        state.autoNextTimeout = null;
+      }
+
+      state.userName = nameInput;
+      state.score = 0;
+      state.attempted = 0;
+      state.cards = [...allCards].sort(() => Math.random() - 0.5);
+      state.currentIndex = 0;
+      state.quizFeedback = null;
+      state.userAnswer = '';
+      state.mode = 'quiz';
+      
+      updateUI();
+    }
+
+    function handleOptionSelect(option) {
+      if (state.quizFeedback) return;
+
+      state.userAnswer = option;
+      state.attempted++;
+
+      const currentCard = state.cards[state.currentIndex];
+      if (option === currentCard.back) {
+        state.score++;
+        state.quizFeedback = 'correct';
+        
+        // Automatically go to next question after 3 seconds
+        state.autoNextTimeout = setTimeout(() => {
+          nextQuizQuestion();
+        }, 3000);
+      } else {
+        state.quizFeedback = 'incorrect';
+      }
+      updateUI();
+    }
+
+    function nextQuizQuestion() {
+      if (state.autoNextTimeout) {
+        clearTimeout(state.autoNextTimeout);
+        state.autoNextTimeout = null;
+      }
+
+      state.quizFeedback = null;
+      state.userAnswer = '';
+      state.currentIndex = (state.currentIndex + 1) % state.cards.length;
+      updateUI();
+    }
+
+    function exitQuiz() {
+      if (state.autoNextTimeout) {
+        clearTimeout(state.autoNextTimeout);
+        state.autoNextTimeout = null;
+      }
+
+      state.mode = 'study';
+      state.cards = [...allCards];
+      state.currentIndex = 0;
+      state.activeFilter = 'All';
+      state.isFlipped = false;
+      updateUI();
+    }
+
+    // --- Master Render Function ---
+
+    function updateUI() {
+      // Manage View visibility
+      views.study.style.display = state.mode === 'study' ? 'flex' : 'none';
+      views.nameEntry.style.display = state.mode === 'name-entry' ? 'flex' : 'none';
+      views.quiz.style.display = state.mode === 'quiz' ? 'flex' : 'none';
+
+      const currentCard = state.cards[state.currentIndex];
+
+      if (state.mode === 'study') {
+        renderFilters();
+        
+        if (currentCard) {
+          document.getElementById('card-front-text').textContent = currentCard.front;
+          document.getElementById('card-back-text').textContent = currentCard.back;
+          document.getElementById('index-display').textContent = `${state.currentIndex + 1} / ${state.cards.length}`;
+        }
+
+        const cardInner = document.getElementById('card-inner');
+        if (state.isFlipped) {
+          cardInner.style.transform = 'rotateX(180deg)';
+          cardInner.classList.add('shadow-indigo-500/20');
+          cardInner.classList.remove('shadow-slate-300/50');
+        } else {
+          cardInner.style.transform = 'rotateX(0deg)';
+          cardInner.classList.remove('shadow-indigo-500/20');
+          cardInner.classList.add('shadow-slate-300/50');
+        }
+      }
+
+      if (state.mode === 'quiz') {
+        document.getElementById('quiz-player-name').textContent = state.userName;
+        document.getElementById('quiz-score').innerHTML = `${state.score} <span class="text-slate-400 text-sm font-normal">/ ${state.attempted}</span>`;
+        
+        if (currentCard) {
+          document.getElementById('quiz-question-number').textContent = `Question ${state.currentIndex + 1}`;
+          document.getElementById('quiz-question-text').textContent = `${currentCard.front} = ?`;
+        }
+
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+        
+        quizOptions.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.textContent = opt;
+          btn.disabled = state.quizFeedback !== null;
+          btn.onclick = () => handleOptionSelect(opt);
+
+          let btnClass = "py-3 px-2 rounded-xl border-2 font-serif text-[15px] sm:text-base transition-colors focus:outline-none ";
+          if (state.quizFeedback) {
+            if (opt === currentCard.back) {
+              btnClass += "border-green-400 bg-green-50 text-green-800";
+            } else if (opt === state.userAnswer && state.quizFeedback === 'incorrect') {
+              btnClass += "border-red-400 bg-red-50 text-red-800";
+            } else {
+              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+            }
+          } else {
+            btnClass += "border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:shadow-sm cursor-pointer";
+          }
+          btn.className = btnClass;
+          optionsContainer.appendChild(btn);
+        });
+
+        const feedbackContainer = document.getElementById('quiz-feedback-container');
+        if (state.quizFeedback === 'correct') {
+          feedbackContainer.innerHTML = `<div class="text-green-600 font-bold animate-pulse text-center">Correct!</div>`;
+        } else if (state.quizFeedback === 'incorrect') {
+          feedbackContainer.innerHTML = `<div class="text-red-500 text-center"><span class="font-bold">Incorrect.</span> The correct answer is <span class="font-serif font-bold text-slate-800">${currentCard.back}</span></div>`;
+        } else {
+          feedbackContainer.innerHTML = '';
+        }
+
+        const nextBtn = document.getElementById('quiz-next-btn');
+        if (state.quizFeedback) {
+          nextBtn.classList.remove('hidden');
+        } else {
+          nextBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (state.mode !== 'study') return;
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        toggleFlip();
+      }
+    });
+
+    // Initial render
+    updateUI();
+
+  </script>
+</body>
+</html>
