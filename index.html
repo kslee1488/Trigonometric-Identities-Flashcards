@@ -240,6 +240,28 @@
       quiz: document.getElementById('quiz-mode')
     };
 
+    // Google Apps Script Web App URL
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbx17HrgR2SYmdIWL95_TpRvFMlq11v4AtF082UFZq_4NSjy7PAaDydANXHZDTxFyAcH/exec';
+
+    function syncScoreToServer() {
+      // Don't send if missing a username
+      if (!state.userName || !GAS_URL) return;
+      
+      fetch(GAS_URL, {
+        method: 'POST',
+        // Using text/plain bypasses strict CORS preflight checks
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          name: state.userName,
+          score: state.score,
+          attempted: state.attempted
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log('Score synced to Google Sheets:', data))
+      .catch(err => console.error('Error syncing score:', err));
+    }
+
     // --- Study Mode Logic ---
 
     function renderFilters() {
@@ -364,7 +386,9 @@
       } else {
         state.quizFeedback = 'incorrect';
       }
+      
       updateUI();
+      syncScoreToServer(); // Fire off the data sync silently after every question is answered
     }
 
     function nextQuizQuestion() {
@@ -445,14 +469,14 @@
           let btnClass = "py-3 px-2 rounded-xl border-2 font-serif text-[15px] sm:text-base transition-colors focus:outline-none ";
           if (state.quizFeedback) {
             if (opt === currentCard.back) {
-              btnClass += "border-green-400 bg-green-50 text-green-800";
+              btnClass += "border-green-400 bg-green-50 text-green-800"; // Correct answer
             } else if (opt === state.userAnswer && state.quizFeedback === 'incorrect') {
-              btnClass += "border-red-400 bg-red-50 text-red-800";
+              btnClass += "border-red-400 bg-red-50 text-red-800"; // Selected wrong answer
             } else {
-              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50"; // Unselected options
             }
           } else {
-            btnClass += "border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:shadow-sm cursor-pointer";
+            btnClass += "border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:shadow-sm cursor-pointer"; // Default
           }
           btn.className = btnClass;
           optionsContainer.appendChild(btn);
